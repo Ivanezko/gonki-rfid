@@ -3,20 +3,25 @@
 
 RFID MyRF;
 
-void setup() {
+void setup()
+{
+  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
-  while (!Serial) {
+  while (!Serial)
+  {
     ; // wait for serial port to connect. Needed for native USB port only
-  } 
+  }
+  delay(300);
+  Serial.println(F("===SETUP START V2.0.0"));
 
-  Serial.println(F("===SETUP START V1.0.0"));
-  MyRF = RFID();
-  
+  MyRF.setup();
+
 }
 
-void loop() {
+void loop()
+{
+  //digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+  //Serial.print("\nasd");
+  //delay(1000);
   MyRF.loop();
-
-  
-
 }
