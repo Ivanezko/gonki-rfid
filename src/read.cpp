@@ -18,6 +18,8 @@ int RFID::scan_result()
   unsigned char incomingByte;
   if (SerialRFID.available() > 0)
   {
+    Last_rx_millis = millis();
+    Active = "1";
     if (debug) Serial.print(F("\n\tREAD: "));
     int i = 0;
     while (SerialRFID.available() > 0)

@@ -6,6 +6,10 @@
 #define RFID_TX 3
 SoftwareSerial SerialRFID(2, 3, false);
 
+unsigned long publish_status_period = 1000;
+unsigned long publish_status_last = 0;
+
+unsigned long rfid_last_activity_maximum = 40000; // 40 seconds no RX - means RFID gone away
 
 RFID::RFID()
 {
@@ -13,10 +17,17 @@ RFID::RFID()
 
 void RFID::setup()
 {
-  debug_realtime = true;
-  debug = true;
-  Serial.print(F("\n\n===============RFID setup start=============\n\n"));
+  debug_realtime = false;
+  debug = false;
+  Serial.print(F("\n\n===============RFID setup start============="));
 
+  SerialRFID.begin(115200);
+  delay(100);
+  send_realtime_mode_off();
+  read_answer();
+  send_speed();
+  read_answer();
+  SerialRFID.end();
   
   SerialRFID.begin(57600);
   delay(100);
@@ -33,7 +44,7 @@ void RFID::setup()
   //send_speed();
   //read_answer();
 
-  get_info();
+  send_frequency();
   read_answer();
 
   send_inventorytime();
@@ -48,22 +59,37 @@ void RFID::setup()
   send_antenna_multiplexing();
   read_answer();
 
-  get_info();
+  send_heartbeat();
   read_answer();
 
-  send_heartbeat();
+  get_info();
   read_answer();
 
   send_realtime_mode_on();
   read_answer();
 
-  Serial.print(F("\n\n==============RFID setup end==============\n\n"));
+  Serial.print(F("\n==============RFID setup end==============\n"));
 }
 
 void RFID::loop()
 {
-  //send_scan();
   scan_result();
+  //send_writetag("25");
+  //read_answer();
+  //delay(10000);
+
+  if (millis()-publish_status_last > publish_status_period) {
+    publish_status_last = millis();
+    publish_status();
+  }
+
+  if ((Active == "1") && (millis()-Last_rx_millis > rfid_last_activity_maximum)) {
+    Active = "0";
+    if (debug) Serial.print(F("\nRFID HAS GONE AWAY"));
+    publish_status();
+  }
+
+
 }
 
 

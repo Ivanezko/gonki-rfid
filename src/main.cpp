@@ -16,6 +16,8 @@ void setup()
 
   MyRF.setup();
 
+  Serial.println(F("===SETUP END V2.0.0"));
+  Serial.println(F("\n\n===LOOP START\n\n"));
 }
 
 void loop()

@@ -26,7 +26,7 @@ void RFID::send_command(int cmd, unsigned char *payload, int len)
 
 void RFID::get_info()
 {
-  Serial.print(F("\ncommand get info"));
+  if (debug) Serial.print(F("\ncommand get info"));
   unsigned char dt[0];
   send_command(0x21, dt, sizeof(dt));
 }
@@ -38,6 +38,20 @@ void RFID::send_inventorytime()
   unsigned char dt[1];
   dt[0] = (byte)0x01;
   send_command(0x25, dt, sizeof(dt));
+}
+
+void RFID::send_frequency()
+{
+  if (debug)
+    Serial.print(F("\ncommand set frequency"));
+  unsigned char dt[2];
+  // EU
+  //dt[0] = (byte)0b01001110;
+  //dt[1] = (byte)0b00000000;
+  // UA
+  dt[0] = 0b01000110;
+  dt[1] = 0b10000000;
+  send_command(0x22, dt, sizeof(dt));
 }
 
 void RFID::send_heartbeat()
@@ -127,4 +141,32 @@ void RFID::send_temp()
   if (debug) Serial.print(F("\ncommand get temp"));
   unsigned char dt[0];
   send_command(0x92, dt, 0);
+}
+
+
+void RFID::send_writetag(String bort) {
+  while (bort.length() < 4) {
+    bort = "0" + bort;
+  }
+  send_realtime_mode_off();
+  read_answer();
+  if (debug) Serial.print(F("\nwrite tag"));
+  unsigned char dt[11];
+  dt[0] = (byte)0x03; // length in words(2bytes)
+  dt[1] = (byte)0x00; //  pwd 
+  dt[2] = (byte)0x00; //  pwd 
+  dt[3] = (byte)0x00; //  pwd 
+  dt[4] = (byte)0x00; //  pwd 
+  dt[5] = (byte)0x04; // bort mark - "42" :)
+  dt[6] = (byte)0x02; // bort mark - "42" :)
+
+  for (byte i = 0; i < 4; i++) {
+    dt[7+i] = (byte)bort[i];
+  }
+
+  send_command(0x04, dt, sizeof(dt));
+  read_answer();
+  if (debug) Serial.print(F("\nwrite tag END"));
+  send_realtime_mode_on();
+  read_answer();
 }

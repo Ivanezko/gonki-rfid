@@ -10,8 +10,13 @@ private:
   unsigned char receive_buffer[100];
   bool debug;
   bool debug_realtime;
-  char current_bort[5];
-  String last_brt;
+  String Last_brt;
+  int Last_brt_duplicates = 0;
+  unsigned long Heartbeat_no;
+  unsigned long Last_rx_millis = 0;
+  String Active = "0";
+  String Antennas = "____";
+  String Temp = "___";
   CRC16 crc = CRC16();
 
   void send_command(int cmd, unsigned char *payload, int len);
@@ -25,15 +30,19 @@ private:
   int scan_result();
   void get_info();
   void send_inventorytime();
+  void send_frequency();
   void send_power();
   void send_antenna_multiplexing();
   void send_scan();
   void send_speed();
   void send_buzzer();
   void send_temp();
+  void send_writetag(String bort);
 
-  void publish(char *txt);
-  void heartbeat();
+  String char_arr_to_string(char *arr);
+
+  void publish_bort();
+  void publish_status();
 
 public:
   RFID();
