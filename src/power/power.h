@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 extern const int POWER_PIN;
-extern const int WAKEUP_PIN;
+extern const int WAKEUP_RFID_PIN;
 
 
 

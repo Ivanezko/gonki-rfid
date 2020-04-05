@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-extern const int LED_PIN;
+extern const int LED_RFID_PIN;
 
 class LED
 {

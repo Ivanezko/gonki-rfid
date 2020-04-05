@@ -4,17 +4,16 @@
 bool LED::status = false;
 byte LED::mode = 0;
 
-int bort_detection_sequence[5] = { 100, 200, 300, 400, 500 }; // -+-+-
+int bort_detection_sequence_curr = 0;
 unsigned long bort_detection_base_millis = 0;
 
 void LED::setup()
 {
-    pinMode(LED_PIN, OUTPUT);
+    pinMode(LED_RFID_PIN, OUTPUT);
 }
 
 void LED::loop()
 {
-
     switch (LED::mode)
     {
     case 0:
@@ -26,25 +25,14 @@ void LED::loop()
         }
         break;
       case 1:
-        bool found = false;
-        for (int i=4; i>=0; i--) {
-            if (millis()-bort_detection_base_millis < bort_detection_sequence[i]) {
-                    found = true;
-                    if (LED::status) LED::off();
-                    else LED::on();
-                break;
-            }
-            if (!found) {
-                LED::mode=1;
-                LED::on();
-            }
+        if (millis()-bort_detection_base_millis < 100) {
+                LED::off();
+        } else {
+            LED::mode=0;
+            LED::on();
         }
-
-
         break;
   
-    default:
-        break;
     }
 }
 
@@ -58,11 +46,11 @@ void LED::show_bort_detected()
 void LED::on()
 {
     LED::status = true;
-    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(LED_RFID_PIN, HIGH);
 }
 
 void LED::off()
 {
     LED::status = false;
-    digitalWrite(LED_PIN, LOW);
+    digitalWrite(LED_RFID_PIN, LOW);
 }
