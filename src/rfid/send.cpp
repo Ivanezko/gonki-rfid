@@ -11,29 +11,29 @@ void RFID::send_command(int cmd, unsigned char *payload, int len)
   {
     frame[3 + i] = payload[i];
   }
-  crc.sign(frame, frame[0] - 1);
-  if (debug) Serial.print(F("\n\tWRITE: "));
+  CRC16::sign(frame, frame[0] - 1);
+  if (RFID::debug) Serial.print(F("\n\tWRITE: "));
   for (int i = 0; i < frame[0] + 1; i++)
   {
-    if (debug_realtime)
+    if (RFID::debug_realtime)
     {
       Serial.print(frame[i], HEX);
       Serial.print(":");
     }
-    SerialRFID.write(frame[i]);
+    RFID::SerialRFID.write(frame[i]);
   }
 }
 
 void RFID::get_info()
 {
-  if (debug) Serial.print(F("\ncommand get info"));
+  if (RFID::debug) Serial.print(F("\ncommand get info"));
   unsigned char dt[0];
   send_command(0x21, dt, sizeof(dt));
 }
 
 void RFID::send_inventorytime()
 {
-  if (debug)
+  if (RFID::debug)
     Serial.print(F("\ncommand set inventory time"));
   unsigned char dt[1];
   dt[0] = (byte)0x01;
@@ -42,7 +42,7 @@ void RFID::send_inventorytime()
 
 void RFID::send_frequency()
 {
-  if (debug)
+  if (RFID::debug)
     Serial.print(F("\ncommand set frequency"));
   unsigned char dt[2];
   // EU
@@ -56,7 +56,7 @@ void RFID::send_frequency()
 
 void RFID::send_heartbeat()
 {
-  if (debug)
+  if (RFID::debug)
     Serial.print(F("\ncommand set heartbeat"));
   unsigned char dt[1];
   dt[0] = (byte)0x81; // 7bit-1, rest 6 bits: (0 ~ 127)*30s
@@ -65,7 +65,7 @@ void RFID::send_heartbeat()
 
 void RFID::send_power()
 {
-  if (debug)
+  if (RFID::debug)
     Serial.print(F("\ncommand set power"));
   unsigned char dt[1];
   dt[0] = (byte)0x15; // power 0-30 (dec!), 0-0x1E
@@ -74,7 +74,7 @@ void RFID::send_power()
 
 void RFID::send_antenna_multiplexing()
 {
-  if (debug)
+  if (RFID::debug)
     Serial.print(F("\ncommand set antennas multiplexing mode"));
   unsigned char dt[1];
   dt[0] = (byte)0x01; // enable all antennas - 0F
@@ -83,21 +83,32 @@ void RFID::send_antenna_multiplexing()
 
 void RFID::send_realtime_mode_on()
 {
-  if (debug)
+  if (RFID::debug)
     Serial.print(F("\ncommand set realtime inventory params"));
   unsigned char dt2[5];
+  /*ReadPauseTime: 1 byte, time break between 2 real time inventories.
+  0x00 – 10ms;
+  0x01 – 20ms;
+  0x02 – 30ms;
+  0x03 – 50ms;
+  0x04 – 100ms.
+  FliterTime: 1 byte, tag filtering time. 
+  The valid value of this parameter is 0 ~ 255, corresponds to (0 ~ 255)*1s. 
+  In real time inventory, if reader detects a particular tag for more than 1 time, reader will only upload tag information 
+  of this tag once within the pre-defined filtering time. For FliterTime = 0, disable tag filtering function.
+  */
   dt2[0] = (byte)0x00; // TagProtocol
-  dt2[1] = (byte)0x00; // read pause
-  dt2[2] = (byte)0x00; // Filter (0 ~ 255)*1s
+  dt2[1] = (byte)0x00; // ReadPauseTime
+  dt2[2] = (byte)0x01; // Filter (0 ~ 255)*1s
   dt2[3] = (byte)0x00; // QValue
   dt2[4] = (byte)0x00; // Session
   //dt2[5] = (byte)0x01; // MaskMem
   //dt2[6] = (byte)0x00; // MaskAdr
   //dt2[7] = (byte)0x00; // MaskLen
   //dt2[8] = (byte)0x00; // MaskData
-  //send_command(0x75, dt2, sizeof(dt2));
-
-  if (debug)
+  send_command(0x75, dt2, sizeof(dt2));
+  
+  if (RFID::debug)
     Serial.print(F("\ncommand set realtime inventory mode ON"));
   unsigned char dt[1];
   dt[0] = (byte)0x01; // 0-answering, 1-realtime,3-realtime(triggered)
@@ -106,7 +117,7 @@ void RFID::send_realtime_mode_on()
 
 void RFID::send_realtime_mode_off()
 {
-  if (debug) Serial.print(F("\ncommand realtime inventory mode OFF"));
+  if (RFID::debug) Serial.print(F("\ncommand realtime inventory mode OFF"));
   unsigned char dt[1];
   dt[0] = (byte)0x00; // 0-answering, 1-realtime,3-realtime(triggered)
   send_command(0x76, dt, sizeof(dt));
@@ -122,7 +133,7 @@ void RFID::send_scan()
 
 void RFID::send_speed()
 {
-  if (debug) Serial.print(F("\ncommand set speed"));
+  if (RFID::debug) Serial.print(F("\ncommand set speed"));
   unsigned char dt[1];
   dt[0] = (byte)0x05; // 00 - 9600, 01 - 19200, 02 - 38400, 05 - 57600, 06 - 115200
   send_command(0x28, dt, sizeof(dt));
@@ -130,7 +141,7 @@ void RFID::send_speed()
 
 void RFID::send_buzzer()
 {
-  if (debug) Serial.print(F("\ncommand buzzer"));
+  if (RFID::debug) Serial.print(F("\ncommand buzzer"));
   unsigned char dt[1];
   dt[0] = (byte)0x01; // 0-disable, 1-enable
   send_command(0x40, dt, sizeof(dt));
@@ -138,19 +149,19 @@ void RFID::send_buzzer()
 
 void RFID::send_temp()
 {
-  if (debug) Serial.print(F("\ncommand get temp"));
+  if (RFID::debug) Serial.print(F("\ncommand get temp"));
   unsigned char dt[0];
   send_command(0x92, dt, 0);
 }
 
 
-void RFID::send_writetag(String bort) {
-  while (bort.length() < 4) {
+void RFID::send_writetag(char bort[5]) {
+  /*while (bort.length() < 4) {
     bort = "0" + bort;
-  }
+  }*/
   send_realtime_mode_off();
   read_answer();
-  if (debug) Serial.print(F("\nwrite tag"));
+  if (RFID::debug) Serial.print(F("\nwrite tag"));
   unsigned char dt[11];
   dt[0] = (byte)0x03; // length in words(2bytes)
   dt[1] = (byte)0x00; //  pwd 
@@ -161,12 +172,12 @@ void RFID::send_writetag(String bort) {
   dt[6] = (byte)0x02; // bort mark - "42" :)
 
   for (byte i = 0; i < 4; i++) {
-    dt[7+i] = (byte)bort[i];
+    dt[7+i] = bort[i];
   }
 
   send_command(0x04, dt, sizeof(dt));
   read_answer();
-  if (debug) Serial.print(F("\nwrite tag END"));
+  if (RFID::debug) Serial.print(F("\nwrite tag END"));
   send_realtime_mode_on();
   read_answer();
 }

@@ -25,6 +25,10 @@ String RFID::error_text(char c)
     case 0xFF:
         return "Unrecognised parameters in a command frame";
         break;
+    case 0xFE:
+        return "CRC error or incorrect command code";
+        break;
+
     default:
         return "error unknown";
         break;

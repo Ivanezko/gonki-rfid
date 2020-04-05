@@ -1,29 +1,36 @@
 #include <Arduino.h>
-#include "rfid.h"
+#include "rfid/rfid.h"
+#include "power/power.h"
+#include "led/led.h"
 
-RFID MyRF;
+volatile uint32_t newlines = 0UL;
+
+extern const int RFID_TX = 9; // - 9(rx) on rfid
+extern const int RFID_RX = 2; // to 10(tx) on rfid 
+extern const int POWER_PIN = 4; // S on relay
+extern const int LED_PIN = 5; // led to show power ond. resistor 10kOm to gnd
+extern const int WAKEUP_PIN = 6; // button
 
 void setup()
 {
-  pinMode(LED_BUILTIN, OUTPUT);
+  //pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
-  while (!Serial)
-  {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
-  delay(300);
+  delay(100);
   Serial.println(F("===SETUP START V2.0.0"));
 
-  MyRF.setup();
+  LED::setup();
+  LED::on();
+  POWER::setup();
+  RFID::setup(); // возможно и нефиг делать каждый раз setup? все настройки же запоминаются 
 
   Serial.println(F("===SETUP END V2.0.0"));
   Serial.println(F("\n\n===LOOP START\n\n"));
+  
 }
 
 void loop()
 {
-  //digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-  //Serial.print("\nasd");
-  //delay(1000);
-  MyRF.loop();
+  RFID::loop();
+  POWER::loop();
+  LED::loop();
 }

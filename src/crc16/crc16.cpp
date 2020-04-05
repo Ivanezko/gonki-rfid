@@ -1,15 +1,13 @@
 #include "crc16.h"
 
-CRC16::CRC16()
-{
-}
+unsigned short CRC16::last_result = 0;
 
 unsigned char CRC16::get_byte(int num)
 {
   if (num == 0)
-    return last_result & 0xFF;
+    return CRC16::last_result & 0xFF;
   else
-    return (last_result >> 8) & 0xFF;
+    return (CRC16::last_result >> 8) & 0xFF;
 }
 
 void CRC16::uiCrc16Cal(unsigned char *pucY, unsigned char ucX)
@@ -31,19 +29,19 @@ void CRC16::uiCrc16Cal(unsigned char *pucY, unsigned char ucX)
       }
     }
   }
-  last_result = uiCrcValue;
+  CRC16::last_result = uiCrcValue;
 }
 
 void CRC16::sign(unsigned char *arr, int arrlen)
 {
-  uiCrc16Cal(arr, arrlen);
+  CRC16::uiCrc16Cal(arr, arrlen);
   arr[arrlen] = get_byte(0);
   arr[arrlen + 1] = get_byte(1);
 }
 
 bool CRC16::check(unsigned char *arr, int arrlen)
 {
-  uiCrc16Cal(arr, arrlen - 2);
+  CRC16::uiCrc16Cal(arr, arrlen - 2);
   unsigned char byte_low = get_byte(0);
   unsigned char byte_high = get_byte(1);
   if (byte_low == arr[arrlen - 2] && byte_high == arr[arrlen - 1])
