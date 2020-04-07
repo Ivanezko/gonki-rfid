@@ -1,6 +1,7 @@
 #include <Arduino.h>
 //#include "SoftwareSerial.h"
-#include <NeoICSerial.h>
+//#include <NeoICSerial.h>
+#include <NeoSWSerial.h>
 #include "crc16/crc16.h"
 
 extern const int RFID_TX;
@@ -10,7 +11,9 @@ class RFID
 {
 
 private:
-  static NeoICSerial SerialRFID;
+  //static SoftwareSerial SerialRFID;
+  //static NeoICSerial SerialRFID;
+  static NeoSWSerial SerialRFID;
   static unsigned char receive_buffer[200];
   static bool debug;
   static bool debug_realtime;

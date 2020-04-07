@@ -135,7 +135,7 @@ void RFID::send_speed()
 {
   if (RFID::debug) Serial.print(F("\ncommand set speed"));
   unsigned char dt[1];
-  dt[0] = (byte)0x05; // 00 - 9600, 01 - 19200, 02 - 38400, 05 - 57600, 06 - 115200
+  dt[0] = (byte)0x01; // 00 - 9600, 01 - 19200, 02 - 38400, 05 - 57600, 06 - 115200
   send_command(0x28, dt, sizeof(dt));
 }
 

@@ -2,15 +2,19 @@
 //#include "SoftwareSerial.h"
 #include "rfid.h"
 
-//SoftwareSerial SerialRFID(RFID_RX, RFID_TX, false);
+//SoftwareSerial SerialRFID(2, 3, false);
 
 unsigned long publish_status_period = 1000;
 unsigned long publish_status_last = 0;
 
 unsigned long rfid_last_activity_maximum = 40000; // 40 seconds no RX - means RFID gone away
 
-//SoftwareSerial RFID::SerialRFID = SoftwareSerial(2, 3);
-NeoICSerial RFID::SerialRFID;
+extern const int RFID_TX;
+extern const int RFID_RX;
+
+//SoftwareSerial RFID::SerialRFID = SoftwareSerial(3, 2);
+//NeoICSerial RFID::SerialRFID;
+NeoSWSerial RFID::SerialRFID(RFID_RX,RFID_TX);
 String RFID::Last_brt = "";
 int RFID::Last_brt_duplicates = 0;
 unsigned long RFID::Last_rx_millis = 0;
@@ -29,8 +33,8 @@ void RFID::setup()
   Serial.print(F("\n\n===============RFID setup start============="));
 
   //Serial.print(F("\n\nstart rfid tune speed"));
-
-  RFID::SerialRFID.begin(9600);
+/*
+  RFID::SerialRFID.begin(38400);
   delay(300);
   send_realtime_mode_off();
   drain_answer();
@@ -61,7 +65,7 @@ void RFID::setup()
   send_speed();
   drain_answer();
   RFID::SerialRFID.end();
-
+*/
   /*RFID::SerialRFID.begin(115200);
   delay(300);
   send_realtime_mode_off();
@@ -73,7 +77,7 @@ void RFID::setup()
 
   Serial.print(F("\n\nstart rfid on normal speed"));
 
-  RFID::SerialRFID.begin(57600);
+  RFID::SerialRFID.begin(19200);
   delay(1000);
 
   drain_answer();
@@ -81,6 +85,7 @@ void RFID::setup()
   if (RFID::debug)
     Serial.print(F("\nRFID RFID::debug mode ON\n"));
 
+/*
   send_realtime_mode_off();
   read_answer();
 
@@ -113,7 +118,7 @@ void RFID::setup()
 
   send_realtime_mode_on();
   read_answer();
-
+*/
   Serial.print(F("\n==============RFID setup end==============\n"));
 }
 
