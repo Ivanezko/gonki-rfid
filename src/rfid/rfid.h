@@ -54,7 +54,8 @@ private:
   static void serial_loop();
 
 public:
-  static String Active;
+  static bool RealtimeOn; // if true, realtime data from RFID will be parsed, if false - ignored
+  static void Realtime(bool active);
   static void setup();
   static void loop();
 };

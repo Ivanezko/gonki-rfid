@@ -28,10 +28,9 @@ int RFID::scan_result()
   if (RFID::SerialRFID.available() > 0)
   {
     RFID::Last_rx_millis = millis();
-    Active = "1";
     if (RFID::debug) Serial.print(F("\n\tREAD: "));
     int i = 0;
-    while (RFID::SerialRFID.available() > 0)
+    while (RFID::SerialRFID.available() > 0 && i<200)
     {
       incomingByte = RFID::SerialRFID.read();
       if (RFID::debug) {
@@ -40,14 +39,14 @@ int RFID::scan_result()
       }
       RFID::receive_buffer[i] = incomingByte;
       i++;
-      if (i >= 199) {
-        Serial.print(F("\n!!!!! scan buffer OVERFLOW!!!!!"));
-        break;
-      }
       bytes_count++;
-      delay(2); // без этого выскакивает из цикла :(
+      delay(3); // без этого выскакивает из цикла :(
     }
-    parse_response(i);
+    if (i == 200) {
+      Serial.print(F("\n!!!!! scan buffer OVERFLOW!!!!!"));
+    } else {
+      parse_response(i);
+    }
   }
   return bytes_count;
 }

@@ -14,11 +14,11 @@ extern const int RFID_RX;
 
 //SoftwareSerial RFID::SerialRFID = SoftwareSerial(3, 2);
 //NeoICSerial RFID::SerialRFID;
-NeoSWSerial RFID::SerialRFID(RFID_RX,RFID_TX);
+NeoSWSerial RFID::SerialRFID(RFID_RX, RFID_TX);
 String RFID::Last_brt = "";
 int RFID::Last_brt_duplicates = 0;
 unsigned long RFID::Last_rx_millis = 0;
-String RFID::Active = "0";
+bool RFID::RealtimeOn = false;
 String RFID::Antennas = "____";
 String RFID::Temp = "___";
 bool RFID::debug = true;
@@ -27,6 +27,13 @@ bool RFID::debug_parse = true;
 unsigned char RFID::receive_buffer[200];
 unsigned long RFID::Heartbeat_no = 0;
 
+void RFID::Realtime(bool active) {
+  delay(50);
+  if (active) {// очистим хвосты пакетов
+    RFID::drain_answer();
+  }
+  RFID::RealtimeOn = active;
+}
 
 void RFID::setup()
 {
@@ -124,16 +131,19 @@ void RFID::setup()
 
 void RFID::loop()
 {
-  scan_result();
+  if (RFID::RealtimeOn) {
+    scan_result();
+  }
 
   if (millis()-publish_status_last > publish_status_period) {
     publish_status_last = millis();
     publish_status();
   }
 
-  if ((Active == "1") && (millis()-RFID::Last_rx_millis > rfid_last_activity_maximum)) {
-    Active = "0";
-    Serial.print(F("\nRFID NOT FOUND"));
+  if (RFID::RealtimeOn && (millis()-RFID::Last_rx_millis > rfid_last_activity_maximum)) {
+    RFID::RealtimeOn = true;
+    Serial.print(F("\nRFID DONT SEND ANYTHING FOR 40sec"));
+    RFID::Last_rx_millis = millis();
     publish_status();
   }
 
@@ -144,6 +154,9 @@ void RFID::loop()
   serial_loop();
 }
 
+
+
+// tmp write bort
 int8_t mode = 0;
 char bort[5];
 int8_t bort_char_pos = 0;

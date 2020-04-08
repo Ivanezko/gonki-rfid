@@ -13,7 +13,7 @@ unsigned long snooze_usb_last_millis = 0;
 extern const int WAKEUP_USB_PIN;
 
 
-bool POWER::status = false;
+bool POWER::active = false;
 
 void POWER::setup()
 {
@@ -26,14 +26,16 @@ void POWER::setup()
 void POWER::on()
 {
     Serial.print(F("\nRFID POWER ON"));
-    POWER::status = true;
+    POWER::active = true;
     digitalWrite(POWER_PIN, HIGH);
+    RFID::Realtime(true);
 }
 void POWER::off()
 {
     Serial.print("try OFF");
     if (digitalRead(WAKEUP_RFID_PIN) == HIGH) {// если не нажата кнопка пробуждения
-        POWER::status = false;
+        RFID::Realtime(false);
+        POWER::active = false;
         digitalWrite(POWER_PIN, LOW);
         Serial.print(F("\nRFID POWER OFF"));
         delay(1000); 
@@ -42,8 +44,8 @@ void POWER::off()
 
 void POWER::loop()
 {
-    //Serial.println(POWER::status);
-    if (POWER::status && (millis()-snooze_last_millis > snooze_period)) {
+    //Serial.println(POWER::active);
+    if (POWER::active && (millis()-snooze_last_millis > snooze_period)) {
         POWER::off();
     }
 
@@ -60,7 +62,7 @@ void POWER::loop()
     }
 
     // моргаем лениво когда спим
-    if (!POWER::status && millis()-sleep_last_millis > 1000) {
+    if (!POWER::active && millis()-sleep_last_millis > 1000) {
         LED::on();
         delay(50);
         LED::off();
@@ -71,9 +73,9 @@ void POWER::loop()
 
 void POWER::wake()
 {
-    Serial.println("\nWAKE!!!");
     snooze_last_millis = millis();
-    if (!POWER::status) {
+    if (!POWER::active) {
+        Serial.println("\nWAKE!!!");
         POWER::on();
     }
 }

@@ -17,10 +17,10 @@ void LED::loop()
     switch (LED::mode)
     {
     case 0:
-        if (POWER::status && !LED::status) {// включаем LED
+        if (POWER::active && !LED::status) {// включаем LED
             LED::on();
         }
-        if (!POWER::status && LED::status) {// выключаем LED
+        if (!POWER::active && LED::status) {// выключаем LED
             LED::off();
         }
         break;

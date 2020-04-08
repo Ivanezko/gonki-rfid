@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "rfid.h"
+#include "power/power.h"
 
 
 // send scanned tag somewhere
@@ -16,7 +17,11 @@ void RFID::publish_status()
   unsigned int sec = millis()/1000;
   Serial.print(F("\n====== publish status\n"));
   Serial.println(sec);
-  Serial.println(Active);
+  if (POWER::active) {
+    Serial.println("1");
+  } else {
+    Serial.println("0");
+  }
   Serial.println(RFID::Heartbeat_no);
   Serial.println(Antennas);
   Serial.println(Temp);

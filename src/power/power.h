@@ -11,7 +11,7 @@ class POWER
     
 
     public:
-    static bool status;
+    static bool active;
     static void setup();
     static void loop();
     static void on();

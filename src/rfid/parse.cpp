@@ -225,7 +225,6 @@ void RFID::parse_response(int len)
 {
   // correct realtime: RESPONSE[15]:E:0:EE:0:1:6:4:2:30:30:34:35:4B:96:8A:
   unsigned char frame[200];
-  byte chunk_len = 0;
   int i = 0;
 
   if (RFID::debug) {
@@ -238,36 +237,19 @@ void RFID::parse_response(int len)
     if (RFID::debug) Serial.print (":");
   }
 
-  for (i = 0; i < len; i++)
+  for (int index = 0; index < len; index++) // перебираем все байты
   {
-    if (chunk_len == 0)
-    {
-      chunk_len = RFID::receive_buffer[i] + 1;
-      for (int j = chunk_len; j > 0; j--)
-      {
-        frame[chunk_len - j] = RFID::receive_buffer[i + chunk_len - j];
+    unsigned char frame_len = RFID::receive_buffer[index];
+    if (index + frame_len + 1 > len) {// слишком длинный фрейм
+      if (RFID::debug) Serial.print(F("\nerror: frame len is too big, skip the rest of the buffer!"));
+      return;
+    } else {
+      for (int j = index; j < index+frame_len+1; j++) {
+        frame[j-index] = RFID::receive_buffer[index+j];
       }
-      if (frame[0]+1 == len) {
-        parse_command(frame);
-      } else {
-        if (RFID::debug) Serial.print (F("\nmismatch frame len, frame passed"));
-      }
+      parse_command(frame);
     }
-    chunk_len--;
+    index = index + frame_len + 1;
   }
 
-  // {15:0:1:3}: {1:1:C:E2:0:0:17:10:D:1}:{23:16}:
-  // [0:75:AC:42:22:27:15:0:1:3:1:1:C:E2:/0
-  // [0:0:17:10:D:1:23:16:0:75:AC:46:6:61:7:0:1:1:1:0:1E:4B:
-
-  // empty
-  // {7:0:1:1}:1:0:{1E:4B}:
-
-  // buzzer
-  // {5:0:40:FD}{0}:{7A:7}:
-
-  // {7:0:1:1}:[1:0]:[1E:4B]:
-  // {5:0:40:0}:{10:2B}:
-  // {7:0:92:0}:[1:19]:{80:57}
-  // {7:0:1:1}:[1:0]:{1E:4B}:
 }
