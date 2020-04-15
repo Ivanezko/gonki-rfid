@@ -11,12 +11,14 @@ unsigned long snooze_usb_period = 3000;
 unsigned long snooze_usb_last_millis = 0;
 
 extern const int WAKEUP_USB_PIN;
+extern const int RCWL_PIN;
 
 
 bool POWER::active = false;
 
 void POWER::setup()
 {
+    pinMode(RCWL_PIN, INPUT);
     pinMode(POWER_PIN, OUTPUT);
     pinMode(WAKEUP_USB_PIN, OUTPUT);
     pinMode(WAKEUP_RFID_PIN, INPUT_PULLUP);
@@ -38,7 +40,7 @@ void POWER::off()
         POWER::active = false;
         digitalWrite(POWER_PIN, LOW);
         Serial.print(F("\nRFID POWER OFF"));
-        delay(1000); 
+        //delay(1000); 
     }
 }
 
@@ -50,6 +52,11 @@ void POWER::loop()
     }
 
     if (digitalRead(WAKEUP_RFID_PIN) == LOW) {
+        POWER::wake();
+    }
+
+    if (digitalRead(RCWL_PIN) == HIGH) {
+        Serial.print("RCWL");
         POWER::wake();
     }
 

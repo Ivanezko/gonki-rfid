@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "rfid.h"
 #include "power/power.h"
+#include "rf24mod/rf24mod.h"
 
 
 // send scanned tag somewhere
@@ -26,5 +27,6 @@ void RFID::publish_status()
   Serial.println(Antennas);
   Serial.println(Temp);
   Serial.println(RFID::Last_brt);
-  Serial.println(RFID::RFID::Last_brt_duplicates);
+  Serial.println(RFID::Last_brt_duplicates);
+  RF24MOD::send(RFID::Last_brt);
 }
