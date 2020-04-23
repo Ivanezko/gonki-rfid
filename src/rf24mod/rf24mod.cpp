@@ -7,19 +7,23 @@
 // 9 и 10 - это номера пинов CE и CSN модуля nRF24L01+
 RF24 radio(9, 10); 
 
-extern uint8_t DEVICE_NAME;
+extern char DEVICE_GROUP;
+extern char DEVICE_TYPE;
 
 uint8_t RF24MOD::buffer[30] = {}; 
 
-void RF24MOD::send(String msg) {
-  uint8_t header_len = 2;
-  Serial.println(msg.length());
+void RF24MOD::send(char msg_type, String msg) {
+  uint8_t header_len = 5;
+  //Serial.println(msg.length());
   uint8_t total_len = msg.length()+header_len;
   RF24MOD::buffer[0] = total_len; 
-  RF24MOD::buffer[1] = DEVICE_NAME; 
+  RF24MOD::buffer[1] = uint8_t(DEVICE_GROUP); 
+  RF24MOD::buffer[2] = uint8_t(DEVICE_TYPE); 
+  RF24MOD::buffer[3] = msg_type;
+  RF24MOD::buffer[4] = ';';
   for (int i = 0; i<total_len-header_len; i++) {
     RF24MOD::buffer[i+header_len] = msg[i];
-    Serial.println(msg[i], HEX);
+    //Serial.println(msg[i], HEX);
   }
   Serial.print(F("\nSend by RF24: "));
   for (int i = 0; i<total_len; i++) {
@@ -27,7 +31,7 @@ void RF24MOD::send(String msg) {
     Serial.print(":");
   }
   radio.stopListening();
-  radio.openWritingPipe (0x1234567890LL + DEVICE_NAME); 
+  radio.openWritingPipe (0x1234567890LL + uint64_t(DEVICE_TYPE-48)); 
   radio.write(&RF24MOD::buffer, total_len); 
   RF24MOD::listen();
 }

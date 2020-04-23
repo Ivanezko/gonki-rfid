@@ -14,6 +14,6 @@ class RF24MOD
     public:
     static void setup();
     static void loop();
-    static void send(String msg);
+    static void send(char msg_type, String msg);
     static void listen();
 };

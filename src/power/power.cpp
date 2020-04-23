@@ -1,6 +1,7 @@
 #include "power.h"
 #include "rfid/rfid.h"
 #include "led/led.h"
+#include "rf24mod/rf24mod.h"
 
 unsigned long snooze_period = 10000;
 unsigned long snooze_last_millis = 0;
@@ -55,10 +56,10 @@ void POWER::loop()
         POWER::wake();
     }
 
-    if (digitalRead(RCWL_PIN) == HIGH) {
+    /*if (digitalRead(RCWL_PIN) == HIGH) {
         Serial.print("RCWL");
         POWER::wake();
-    }
+    }*/
 
     //wake USB
     if (millis()-snooze_usb_last_millis > snooze_usb_period) {
@@ -84,5 +85,6 @@ void POWER::wake()
     if (!POWER::active) {
         Serial.println("\nWAKE!!!");
         POWER::on();
+        RF24MOD::send('3', "");
     }
 }
