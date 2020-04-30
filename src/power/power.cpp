@@ -41,6 +41,7 @@ void POWER::off()
         POWER::active = false;
         digitalWrite(POWER_PIN, LOW);
         Serial.print(F("\nRFID POWER OFF"));
+        RF24MOD::send('8', "");
         //delay(1000); 
     }
 }
@@ -56,10 +57,10 @@ void POWER::loop()
         POWER::wake();
     }
 
-    /*if (digitalRead(RCWL_PIN) == HIGH) {
+    if (digitalRead(RCWL_PIN) == HIGH) {
         Serial.print("RCWL");
-        POWER::wake();
-    }*/
+        //POWER::wake();
+    }
 
     //wake USB
     if (millis()-snooze_usb_last_millis > snooze_usb_period) {
