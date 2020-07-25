@@ -12,7 +12,7 @@ void RFID::send_command(int cmd, unsigned char *payload, int len)
     frame[3 + i] = payload[i];
   }
   CRC16::sign(frame, frame[0] - 1);
-  if (RFID::debug) Serial.print(F("\n\tWRITE: "));
+  if (RFID::debug_realtime) Serial.print(F("\n\tWRITE: "));
   for (int i = 0; i < frame[0] + 1; i++)
   {
     if (RFID::debug_realtime)
@@ -161,6 +161,7 @@ void RFID::send_writetag(char bort[5]) {
   }*/
   send_realtime_mode_off();
   read_answer();
+  delay(1000);
   if (RFID::debug) Serial.print(F("\nwrite tag"));
   unsigned char dt[11];
   dt[0] = (byte)0x03; // length in words(2bytes)
@@ -172,7 +173,7 @@ void RFID::send_writetag(char bort[5]) {
   dt[6] = (byte)0x02; // bort mark - "42" :)
 
   for (byte i = 0; i < 4; i++) {
-    dt[7+i] = bort[i];
+    dt[7+i] = (byte)bort[i];
   }
 
   send_command(0x04, dt, sizeof(dt));

@@ -3,6 +3,7 @@
 #include <nRF24L01.h> 
 #include <RF24.h> 
 #include "rf24mod/rf24mod.h"
+#include "power/power.h"
 
 // 9 и 10 - это номера пинов CE и CSN модуля nRF24L01+
 RF24 radio(9, 10); 
@@ -64,6 +65,13 @@ void RF24MOD::loop(void)
       Serial.print(RF24MOD::buffer[i], HEX); 
       Serial.print(":");
     }
+
+    // process wake signal
+    if (RF24MOD::buffer[3] == '3') {
+      Serial.print("WAKE");
+      POWER::wake();
+    }
+
   } 
 }
 

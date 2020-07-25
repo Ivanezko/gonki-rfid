@@ -179,6 +179,15 @@ void RFID::parse_command(unsigned char *frame)
     }
   }
 
+  if (frame[2] == 0x04)
+  {
+    if (RFID::debug)
+    {
+      Serial.print(F("\n\tPARSED write tag:"));
+      Serial.print(error_text(frame[3]));
+    }
+  }
+
   if (frame[2] == 0x40)
   {
     if (RFID::debug)
